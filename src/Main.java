@@ -26,10 +26,14 @@ public class Main implements Runnable, KeyListener {
     public Image holdscreenPic;
     public Fruit strawberry;
     public Fruit watermelon;
+
+    public Fruit cherries;
     public Snake[] dots;
 
     public Image strawberryPic;
     public Image watermelonPic;
+
+    public Image cherriesPic;
 
     public Image bombPic;
 
@@ -46,11 +50,13 @@ public class Main implements Runnable, KeyListener {
 
     public SoundFile bombSound;
 
-    public SoundFile WiiIntro;
+    public SoundFile goldSound;
 
     public SoundFile marioMusic;
 
     public SoundFile gameoverSound;
+
+
 
 
 
@@ -70,6 +76,9 @@ public class Main implements Runnable, KeyListener {
         watermelon = new Fruit("watermelon", 5, 0, 0);
         watermelonPic = Toolkit.getDefaultToolkit().getImage("watermelon.png");
 
+        cherries = new Fruit ("cherries", 10, 0,0);
+        cherriesPic = Toolkit.getDefaultToolkit().getImage("cherries.png");
+
         bomb = new Bomb("bomb", 0, 0);
         bombPic = Toolkit.getDefaultToolkit().getImage("bomb2.png");
 
@@ -77,13 +86,13 @@ public class Main implements Runnable, KeyListener {
         holdscreenPic = Toolkit.getDefaultToolkit().getImage("unnamed.png");
 
 
-        eatSound = new SoundFile("Plastic Plate 01.wav");
+        eatSound = new SoundFile("munchfx.wav");
+        goldSound = new SoundFile("coinsfx.wav");
         bombSound = new SoundFile("Comical Metal Gong.wav");
-        WiiIntro = new SoundFile("Wii Music.wav");
         marioMusic = new SoundFile("mariopaint.wav");
         gameoverSound = new SoundFile("gameoversound.wav");
 
-        WiiIntro.play();
+        marioMusic.play();
 
         restart();
 
@@ -109,16 +118,24 @@ public class Main implements Runnable, KeyListener {
         }
 
 
-        if (gamePlaying == true && strawberry.isAlive == false && watermelon.isAlive == false) {
+        if (gamePlaying == true && strawberry.isAlive == false && watermelon.isAlive == false && cherries.isAlive == false) {
             random = (int)(Math.random() * 200);
-            if (random < 150) {
+            if (random < 120) {
                 strawberry.spawnn();
                 strawberry.isAlive = true;
                 watermelon.isAlive = false;
+                cherries.isAlive = false;
             }
-            if (random >= 150) {
+            if (random >= 120 && random < 180) {
                 watermelon.spawnn();
                 watermelon.isAlive = true;
+                strawberry.isAlive = false;
+                cherries.isAlive = false;
+            }
+            if (random >=180){
+                cherries.spawnn();
+                cherries.isAlive = true;
+                watermelon.isAlive = false;
                 strawberry.isAlive = false;
             }
         }
@@ -135,7 +152,6 @@ public class Main implements Runnable, KeyListener {
         }
         if (gamePlaying && score <= 0){
             gameOver = true;
-            marioMusic.stop();
             gameoverSound.play();
         }
 
@@ -166,7 +182,24 @@ public class Main implements Runnable, KeyListener {
                 aliveDot = aliveDot + 5;
             }
         }
-
+        for (int i = dots.length - 1; i > 0 ; i = i - 1) {
+            if (cherries.rec.intersects(dots[i].rec) && dots[i].isAlive == true && cherries.isAlive == true) {
+                cherries.isAlive = false;
+                goldSound.play();
+                score = score + cherries.points;
+                dots[aliveDot].isAlive = true;
+                dots[aliveDot + 1].isAlive = true;
+                dots[aliveDot + 2].isAlive = true;
+                dots[aliveDot + 3].isAlive = true;
+                dots[aliveDot + 4].isAlive = true;
+                dots[aliveDot + 5].isAlive = true;
+                dots[aliveDot + 6].isAlive = true;
+                dots[aliveDot + 7].isAlive = true;
+                dots[aliveDot + 8].isAlive = true;
+                dots[aliveDot + 9].isAlive = true;
+                aliveDot = aliveDot + 10;
+            }
+        }
         for (int i = 0; i < dots.length ; i++) {
             if (bomb.rec.intersects(dots[i].rec) && dots[i].isAlive == true && bomb.isAlive == true) {
                 bomb.isAlive = false;
@@ -188,7 +221,6 @@ public class Main implements Runnable, KeyListener {
                     dots[i].xpos < 0) && dots[i].isAlive == true ) {
                     dots[i].isAlive = false;
                     gameOver = true;
-                    marioMusic.stop();
                     gameoverSound.play();
             }
         }
@@ -204,9 +236,10 @@ public class Main implements Runnable, KeyListener {
             g.setFont(new Font("Times Roman", Font.PLAIN, 80));
             g.drawString("Extreme Snake", 250, 200);
             g.setFont(new Font("Times Roman", Font.PLAIN, 25));
-            g.drawString("eat fruit to grow your snake",350,300 );
-            g.drawString("avoid the bombs AND the wall!",350,330 );
-            g.drawString("beat your high score!",350,360 );
+            g.drawString("use arrow keys to move",350,300 );
+            g.drawString("eat fruit to grow your snake",350,330 );
+            g.drawString("avoid the bombs AND the wall!",350,360 );
+            g.drawString("beat your high score!",350,390 );
             g.setFont(new Font("Times New Roman", Font.PLAIN, 45));
             g.drawString("- press spacebar to start -", 300,600 );
         }
@@ -216,12 +249,16 @@ public class Main implements Runnable, KeyListener {
             g.setFont(new Font("Times New Roman", Font.BOLD, 40));
             g.drawString("score: " + score, 432, 110);
 
-            if (strawberry.isAlive == true && watermelon.isAlive == false) {
+            if (strawberry.isAlive == true && watermelon.isAlive == false && cherries.isAlive == false) {
                 g.drawImage(strawberryPic, strawberry.xpos, strawberry.ypos, strawberry.width, strawberry.height, null);
             }
 
-            if (watermelon.isAlive == true && strawberry.isAlive == false) {
+            if (watermelon.isAlive == true && strawberry.isAlive == false && cherries.isAlive == false) {
                 g.drawImage(watermelonPic, watermelon.xpos, watermelon.ypos, watermelon.width, watermelon.height, null);
+            }
+
+            if (cherries.isAlive == true && watermelon.isAlive == false && strawberry.isAlive == false){
+                g.drawImage(cherriesPic,cherries.xpos,cherries.ypos,cherries.width,cherries.height, null);
             }
 
             if (bomb.isAlive == true) {
@@ -327,8 +364,6 @@ public class Main implements Runnable, KeyListener {
             gamePlaying = true;
             gameStarted = true;
             gameOver = false;
-            WiiIntro.stop();
-            marioMusic.play();
         } // start the game
 
         if (gameOver == true && keyCode == 32) {
@@ -336,8 +371,6 @@ public class Main implements Runnable, KeyListener {
             gameStarted = true;
             gameOver = false;
             restart();
-            WiiIntro.stop();
-            marioMusic.play();
 
         } // restart
 
